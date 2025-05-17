@@ -8,38 +8,47 @@ import { fileURLToPath } from 'url'
 import chalk from 'chalk'
 import { spawn } from 'child_process'
 
-// 主函数
-async function main() {
-  const { projectName } = await inquirer.prompt({
-    type: 'input',
-    name: 'projectName',
-    message: '项目名称:',
-    default: 'my-project',
-    validate: input => input.trim() !== '' || '项目名称不能为空'
-  })
+// 配置program
+program
+  .name('embrace')
+  .description('一个现代化的命令行工具，提供高效便捷的开发体验')
+  .version('1.0.0')
 
-  const { techStack } = await inquirer.prompt({
-    type: 'list',
-    name: 'techStack',
-    message: '请选择技术栈类型:',
-    choices: ['Node', 'React', 'Vue', 'SSR']
-  })
+// 初始化命令
+program
+  .command('init')
+  .description('初始化一个新项目')
+  .action(async () => {
+    const { projectName } = await inquirer.prompt({
+      type: 'input',
+      name: 'projectName',
+      message: '项目名称:',
+      default: 'my-project',
+      validate: input => input.trim() !== '' || '项目名称不能为空'
+    })
 
-  switch (techStack) {
-    case 'Node':
-      await handleNodeTemplates(projectName)
-      break
-    case 'React':
-      await handleReactTemplates(projectName)
-      break
-    case 'Vue':
-      await handleVueTemplates(projectName)
-      break
-    case 'SSR':
-      await handleSSRTemplates(projectName)
-      break
-  }
-}
+    const { techStack } = await inquirer.prompt({
+      type: 'list',
+      name: 'techStack',
+      message: '请选择技术栈类型:',
+      choices: ['Node', 'React', 'Vue', 'SSR']
+    })
+
+    switch (techStack) {
+      case 'Node':
+        await handleNodeTemplates(projectName)
+        break
+      case 'React':
+        await handleReactTemplates(projectName)
+        break
+      case 'Vue':
+        await handleVueTemplates(projectName)
+        break
+      case 'SSR':
+        await handleSSRTemplates(projectName)
+        break
+    }
+  })
 
 // Node模板处理
 async function handleNodeTemplates(projectName) {
@@ -143,4 +152,9 @@ async function copyTemplate(templatePath, projectName) {
 }
 
 // 启动程序
-main().catch(console.error)
+program.parse(process.argv)
+
+// 如果没有提供命令，显示帮助信息
+if (!process.argv.slice(2).length) {
+  program.help()
+}
