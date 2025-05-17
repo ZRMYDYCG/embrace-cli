@@ -10,6 +10,14 @@ import { spawn } from 'child_process'
 
 // 主函数
 async function main() {
+  const { projectName } = await inquirer.prompt({
+    type: 'input',
+    name: 'projectName',
+    message: '项目名称:',
+    default: 'my-project',
+    validate: input => input.trim() !== '' || '项目名称不能为空'
+  })
+
   const { techStack } = await inquirer.prompt({
     type: 'list',
     name: 'techStack',
@@ -19,22 +27,22 @@ async function main() {
 
   switch (techStack) {
     case 'Node':
-      await handleNodeTemplates()
+      await handleNodeTemplates(projectName)
       break
     case 'React':
-      await handleReactTemplates()
+      await handleReactTemplates(projectName)
       break
     case 'Vue':
-      await handleVueTemplates()
+      await handleVueTemplates(projectName)
       break
     case 'SSR':
-      await handleSSRTemplates()
+      await handleSSRTemplates(projectName)
       break
   }
 }
 
 // Node模板处理
-async function handleNodeTemplates() {
+async function handleNodeTemplates(projectName) {
   const { template } = await inquirer.prompt({
     type: 'list',
     name: 'template',
@@ -54,11 +62,11 @@ async function handleNodeTemplates() {
   
   const dirname = path.dirname(fileURLToPath(import.meta.url))
   const templatePath = path.join(dirname, '../templates', templateMap[template])
-  await copyTemplate(templatePath)
+  await copyTemplate(templatePath, projectName)
 }
 
 // Vue模板处理
-async function handleVueTemplates() {
+async function handleVueTemplates(projectName) {
   const { template } = await inquirer.prompt({
     type: 'list',
     name: 'template',
@@ -73,11 +81,11 @@ async function handleVueTemplates() {
   
   const dirname = path.dirname(fileURLToPath(import.meta.url))
   const templatePath = path.join(dirname, '../templates', templateMap[template])
-  await copyTemplate(templatePath)
+  await copyTemplate(templatePath, projectName)
 }
 
 // React模板处理
-async function handleReactTemplates() {
+async function handleReactTemplates(projectName) {
   const { template } = await inquirer.prompt({
     type: 'list',
     name: 'template',
@@ -92,11 +100,11 @@ async function handleReactTemplates() {
   
   const dirname = path.dirname(fileURLToPath(import.meta.url))
   const templatePath = path.join(dirname, '../templates', templateMap[template])
-  await copyTemplate(templatePath)
+  await copyTemplate(templatePath, projectName)
 }
 
 // SSR模板处理
-async function handleSSRTemplates() {
+async function handleSSRTemplates(projectName) {
   const { template } = await inquirer.prompt({
     type: 'list',
     name: 'template',
@@ -111,16 +119,26 @@ async function handleSSRTemplates() {
   
   const dirname = path.dirname(fileURLToPath(import.meta.url))
   const templatePath = path.join(dirname, '../templates', templateMap[template])
-  await copyTemplate(templatePath)
+  await copyTemplate(templatePath, projectName)
 }
 
 // 模板复制函数
-async function copyTemplate(templatePath) {
+async function copyTemplate(templatePath, projectName) {
   try {
-    await fs.copy(templatePath, process.cwd())
-    console.log(chalk.green('模板初始化成功!'))
+    const targetPath = path.join(process.cwd(), projectName)
+    await fs.copy(templatePath, targetPath)
+    
+    // 检查并更新package.json
+    const pkgPath = path.join(targetPath, 'package.json')
+    if (await fs.pathExists(pkgPath)) {
+      const pkg = await fs.readJson(pkgPath)
+      pkg.name = projectName
+      await fs.writeJson(pkgPath, pkg, { spaces: 2 })
+    }
+    
+    console.log(chalk.green(`项目 ${chalk.bold(projectName)} 初始化成功!`))
   } catch (err) {
-    console.error(chalk.red('模板初始化失败:', err))
+    console.error(chalk.red('项目初始化失败:', err))
   }
 }
 
