@@ -1,0 +1,27 @@
+├── config/                 # 统一配置中心
+│   ├── default.js          # 默认配置
+│   ├── development.js      # 开发环境配置
+│   ├── production.js       # 生产环境配置
+│   └── test.js             # 测试环境配置
+├── src/
+│   ├── core/               # 核心架构
+│   │   ├── koa-core.js     # Koa核心扩展
+│   │   └── loader.js       # 自动加载器
+│   ├── middleware/         # 中间件层
+│   │   ├── error-handler.js # 统一错误处理
+│   │   └── request-logger.js # 请求日志
+│   ├── modules/            # 业务模块(示例)
+│   │   └── user/           # 用户模块示例
+│   │       ├── controller.js
+│   │       ├── model.js
+│   │       ├── router.js
+│   │       └── service.js
+│   ├── utils/              # 工具库
+│   │   ├── http-exception.js # 异常类
+│   │   └── response.js     # 统一响应格式
+│   └── app.js              # 应用入口
+├── test/                   # 测试目录
+├── .env.example            # 环境变量示例
+├── .gitignore
+├── package.json            # 包含常用scripts和依赖
+└── README.md               # 详细使用文档
