@@ -1,0 +1,36 @@
+D:\开源\embrace-cli
+bin
+node_modules
+templates
+node
+express
+express-js-template
+express-ts-template
+koa
+koa-js-template
+koa-ts-template
+nest
+   nest-mongo
+   nest-mysql
+   nest-prisma
+react
+react-js-template
+react-ts-template
+ssr
+next
+nuxt
+vue
+   vue-js-template
+   public
+   src
+      assets
+      components
+   vue-ts-template
+      public
+      src
+         assets
+         components
+utils
+
+directory: 32
+
