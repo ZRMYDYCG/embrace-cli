@@ -4,63 +4,125 @@ import { program } from 'commander'
 import inquirer from 'inquirer'
 import fs from 'fs-extra'
 import path from 'path'
+import { fileURLToPath } from 'url'
 import chalk from 'chalk'
 import { spawn } from 'child_process'
 
-// 定义模板路径和配置
-const TEMPLATES_DIR = path.join(__dirname, '../templates')
-const TEMPLATES = {
-  'vue-default': 'Vue 默认模板',
-  'vue-admin': 'Vue 后台管理系统模板',
-  'vue-mobile': 'Vue 移动端模板'
-}
-
-// 设置命令行参数
-program
-  .option('-n, --name <name>', '项目名称')
-  .option('-t, --template <template>', '项目模板')
-  .parse(process.argv)
-
+// 主函数
 async function main() {
-  // 获取或询问项目名称
-  let projectName = program.opts().name
-  if (!projectName) {
-    const { name } = await inquirer.prompt({
-      type: 'input',
-      name: 'name',
-      message: '请输入项目名称:',
-      default: 'my-vue-project'
-    })
-    projectName = name
-  }
+  const { techStack } = await inquirer.prompt({
+    type: 'list',
+    name: 'techStack',
+    message: '请选择技术栈类型:',
+    choices: ['Node', 'React', 'Vue', 'SSR']
+  })
 
-  // 获取或询问模板选择
-  let template = program.opts().template
-  if (!template || !TEMPLATES[template]) {
-    const { selectedTemplate } = await inquirer.prompt({
-      type: 'list',
-      name: 'selectedTemplate',
-      message: '请选择项目模板:',
-      choices: Object.entries(TEMPLATES).map(([value, name]) => ({
-        name,
-        value
-      }))
-    })
-    template = selectedTemplate
-  }
-
-  // 创建项目逻辑
-  const projectPath = path.join(process.cwd(), projectName)
-  const templatePath = path.join(TEMPLATES_DIR, template)
-  
-  try {
-    await fs.copy(templatePath, projectPath)
-    console.log(chalk.green(`项目 ${projectName} 创建成功!`))
-    console.log(chalk.blue(`cd ${projectName}`))
-    console.log(chalk.blue('npm install'))
-  } catch (err) {
-    console.error(chalk.red('项目创建失败:', err))
+  switch (techStack) {
+    case 'Node':
+      await handleNodeTemplates()
+      break
+    case 'React':
+      await handleReactTemplates()
+      break
+    case 'Vue':
+      await handleVueTemplates()
+      break
+    case 'SSR':
+      await handleSSRTemplates()
+      break
   }
 }
 
+// Node模板处理
+async function handleNodeTemplates() {
+  const { template } = await inquirer.prompt({
+    type: 'list',
+    name: 'template',
+    message: '请选择Node框架:',
+    choices: ['Express(JS)', 'Express(TS)', 'Koa(JS)', 'Koa(TS)', 'Nest(Mongo)', 'Nest(MySQL)', 'Nest(Prisma)']
+  })
+  
+  const templateMap = {
+    'Express(JS)': 'node/express/express-js-template',
+    'Express(TS)': 'node/express/express-ts-template',
+    'Koa(JS)': 'node/koa/koa-js-template',
+    'Koa(TS)': 'node/koa/koa-ts-template',
+    'Nest(Mongo)': 'node/nest/nest-mongo',
+    'Nest(MySQL)': 'node/nest/nest-mysql',
+    'Nest(Prisma)': 'node/nest/nest-prisma'
+  }
+  
+  const dirname = path.dirname(fileURLToPath(import.meta.url))
+  const templatePath = path.join(dirname, '../templates', templateMap[template])
+  await copyTemplate(templatePath)
+}
+
+// Vue模板处理
+async function handleVueTemplates() {
+  const { template } = await inquirer.prompt({
+    type: 'list',
+    name: 'template',
+    message: '请选择Vue模板:',
+    choices: ['Vue(JS)', 'Vue(TS)']
+  })
+  
+  const templateMap = {
+    'Vue(JS)': 'vue/vue-js-template',
+    'Vue(TS)': 'vue/vue-ts-template'
+  }
+  
+  const dirname = path.dirname(fileURLToPath(import.meta.url))
+  const templatePath = path.join(dirname, '../templates', templateMap[template])
+  await copyTemplate(templatePath)
+}
+
+// React模板处理
+async function handleReactTemplates() {
+  const { template } = await inquirer.prompt({
+    type: 'list',
+    name: 'template',
+    message: '请选择React模板:',
+    choices: ['React(JS)', 'React(TS)']
+  })
+  
+  const templateMap = {
+    'React(JS)': 'react/react-js-template',
+    'React(TS)': 'react/react-ts-template'
+  }
+  
+  const dirname = path.dirname(fileURLToPath(import.meta.url))
+  const templatePath = path.join(dirname, '../templates', templateMap[template])
+  await copyTemplate(templatePath)
+}
+
+// SSR模板处理
+async function handleSSRTemplates() {
+  const { template } = await inquirer.prompt({
+    type: 'list',
+    name: 'template',
+    message: '请选择SSR框架:',
+    choices: ['Next', 'Nuxt']
+  })
+  
+  const templateMap = {
+    'Next': 'ssr/next',
+    'Nuxt': 'ssr/nuxt'
+  }
+  
+  const dirname = path.dirname(fileURLToPath(import.meta.url))
+  const templatePath = path.join(dirname, '../templates', templateMap[template])
+  await copyTemplate(templatePath)
+}
+
+// 模板复制函数
+async function copyTemplate(templatePath) {
+  try {
+    await fs.copy(templatePath, process.cwd())
+    console.log(chalk.green('模板初始化成功!'))
+  } catch (err) {
+    console.error(chalk.red('模板初始化失败:', err))
+  }
+}
+
+// 启动程序
 main().catch(console.error)
