@@ -36,7 +36,7 @@ class HttpException extends Error {
     }
   }
   
-  module.exports = {
+export {    
     HttpException,
     ParameterException,
     NotFound,
