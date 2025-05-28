@@ -2,8 +2,13 @@ import Koa from 'koa'
 import { koaCore } from './core/koa-core.js'
 import { loadMiddlewares } from './core/loader.js'
 import { loadConfig } from '../config/index.js'
+import { moduleRouters } from './modules/index.js'
+import errorHandler from './middleware/error-handler.js'
 
 const app = new Koa()
+
+// 加载错误处理中间件
+app.use(errorHandler)
 
 // 加载不同环境下的配置
 const config = loadConfig()
@@ -13,6 +18,12 @@ koaCore(app)
 
 // 自动加载中间件
 loadMiddlewares(app)
+
+// 使用模块路由
+moduleRouters.forEach(moduleRouter => {
+  app.use(moduleRouter.routes());
+  app.use(moduleRouter.allowedMethods());
+})
 
 // 启动服务器
 app.listen(config.server.port, () => {
