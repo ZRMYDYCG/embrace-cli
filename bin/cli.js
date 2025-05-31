@@ -265,7 +265,6 @@ async function handleSSRTemplates(projectName) {
   }
 }
 
-// 增强版模板复制函数
 async function copyTemplate(relativeTemplatePath, projectName, spinner) {
   const templatePath = path.join(__dirname, '../templates', relativeTemplatePath)
   const targetPath = path.join(process.cwd(), projectName)
@@ -292,7 +291,12 @@ async function copyTemplate(relativeTemplatePath, projectName, spinner) {
 
   try {
     spinner.text = chalk.hex('#FFA500')('正在复制项目文件...')
-    await fs.copy(templatePath, targetPath)
+    await fs.copy(templatePath, targetPath, {
+      filter: (src) => {
+        const basename = path.basename(src)
+        return basename !== 'node_modules' // 跳过node_modules目录
+      }
+    })
 
     const pkgPath = path.join(targetPath, 'package.json')
     if (await fs.pathExists(pkgPath)) {
